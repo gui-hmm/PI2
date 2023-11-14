@@ -1,127 +1,66 @@
-fetch("./oscar_age_female.csv")
-  .then(response => response.text())
-  .then(result =>  {let data = parseCSV(result);
-    createChart("actressesChart", data, "oscar", "black");
-    console.log(result);
-  });
+//o arquivo CSV deve ter um cabeçalho. As colunas representam, 
+//respectivamente, as datas, os depósitos e as retiradas. Quando você seleciona um arquivo CSV, 
+//o JavaScript processa o conteúdo e exibe um gráfico de barras com os depósitos e retiradas para cada data.
+//biblioteca Chart.js oferece muitas opções de personalização. Você pode adaptar conforme suas necessidades.
 
-  fetch("./oscar_age_male.csv")
-  .then(response => response.text())
-  .then(result =>  {let data = parseCSV(result);
-    createChart("actorsChart", data, "oscar", "blue");
-    console.log(result);
-  });
+document.getElementById('csvFile').addEventListener('change', readFile);
 
-  
-    function parseCSV(csvData) {
-      const lines = csvData.split("\n");
-      const data = [];
-      for (let i = 1; i < lines.length; i++) {
-        const parts = lines[i].split(",");
-        data.push({
-            name: parts[3],
-            age: parseInt(parts[2])
-        });
-      }
-      return data;
+function readFile(event) {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
     }
 
-   
-    function createChart(canvasId, data, label, backgroundColor) {
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      new Chart(ctx, {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const lines = content.split('\n').slice(1); // Ignorando o cabeçalho
+        const dates = [];
+        const deposits = [];
+        const withdrawals = [];
+
+        for (let line of lines) {
+            const columns = line.split(',');
+            dates.push(columns[0]);
+            deposits.push(columns[1]);
+            withdrawals.push(columns[2]);
+        }
+
+        renderChart(dates, deposits, withdrawals);
+    };
+
+    reader.readAsText(file);
+}
+
+function renderChart(dates, deposits, withdrawals) {
+    const ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: data.map(item => item.name),
-          datasets: [{
-            label: label,
-            data: data.map(item => item.age),
-            backgroundColor: backgroundColor,
-          }]
+            labels: dates,
+            datasets: [{
+                label: 'Deposito',
+                data: deposits,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'Retirada',
+                data: withdrawals,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
         },
         options: {
-          scales: {
-            y: {
-              beginAtZero: true
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
-          }
         }
-      });
-    }
-
-  
-    fetch('actresses.csv')
-      .then(response => response.text())
-      .then(data => {
-        const actressesData = parseCSV(data);
-        createChart('actressesChart', actressesData, 'Atrizes', 'rgba(255, 99, 132, 0.7)');
-      });
-
-    fetch('actors.csv')
-      .then(response => response.text())
-      .then(data => {
-        const actorsData = parseCSV(data);
-        createChart('actorsChart', actorsData, 'Atores', 'rgba(54, 162, 235, 0.7)');
-      });
-
-    
-    Promise.all([
-      fetch('oscar_age_female.csv').then(response => response.text()),
-      fetch('oscar_age_male.csv').then(response => response.text())
-    ]).then(data => {
-      const actressesData = parseCSV(data[0]);
-      const actorsData = parseCSV(data[1]);
-
-      const combinedData = {
-        labels: actressesData.map(item => item.name),
-        datasets: [
-          {
-            label: 'Atrizes',
-            data: actressesData.map(item => item.age),
-            backgroundColor: 'rgba(255, 99, 132, 0.7)',
-            yAxisID: 'y-axis-1',
-          },
-          {
-            label: 'Atores',
-            data: actorsData.map(item => item.age),
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            yAxisID: 'y-axis-2',
-          }
-        ]
-      };
-
-      const ctx = document.getElementById('combinedChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: combinedData,
-        options: {
-          scales: {
-            y: [
-              {
-                type: 'linear',
-                display: true,
-                position: 'left',
-                id: 'y-axis-1',
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Idade de Atrizes'
-                }
-              },
-              {
-                type: 'linear',
-                display: true,
-                position: 'right',
-                id: 'y-axis-2',
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Idade de Atores'
-                }
-              }
-            ]
-          }
-        }
-      });
     });
- 
+}

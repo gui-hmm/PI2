@@ -1,20 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <title>Gráficos de Idade de Atores e Atrizes Vencedores do Oscar</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de CSV e Gráfico de Barras</title>
 </head>
 <body>
-  <div>
-    <canvas id="actressesChart"></canvas>
-  </div>
-  <div>
-    <canvas id="actorsChart"></canvas>
-  </div>
-  <div>
-    <canvas id="combinedChart"></canvas>
-  </div>
+    <input type="file" id="csvFile" accept=".csv">
+    <canvas id="chart"></canvas>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
